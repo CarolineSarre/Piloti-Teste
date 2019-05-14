@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\User;
 
 class UserController extends Controller
@@ -14,7 +15,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        return view('index');
+        $users = DB::table('users')->get();
+
+        return view('private',  ['users' => $users]);
     }
 
     /**
@@ -36,20 +39,8 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $User = new User;
-        $User
-
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+        $User;
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -58,7 +49,8 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = User::findOrFail($id);
+        return view('edit',  ['user' => $user]);
     }
 
     /**
@@ -68,9 +60,15 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(Request $request, $id){
+        $id =  DB::table('users')
+        ->where('id', $id)->update([
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'password' => bcrypt($request['password']),
+        ]);
+
+        return back()->with(['success'=>'Cadastrado editado com sucesso!']);
     }
 
     /**
@@ -81,6 +79,8 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user_delete = User::findOrFail($id);
+        $user_delete->delete();
+        return back()->with(['success'=>'Usuário deletadocom sucesso!']);
     }
 }
